@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -15,6 +17,12 @@ class _ChatScreenState extends State<ChatScreen> {
   final _firestore = FirebaseFirestore.instance;
   late User _currentUser;
 
+  // تعريف موديل الذكاء الاصطناعي
+  final _model = GenerativeModel(
+    model: 'gemini-pro',
+    apiKey: dotenv.env['GEMINI_API_KEY']!,
+  );
+
   @override
   void initState() {
     super.initState();
@@ -27,6 +35,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     _messageController.clear();
 
+    // 1. إضافة رسالة المستخدم إلى Firestore
     await _firestore
         .collection('users')
         .doc(_currentUser.uid)
@@ -38,17 +47,29 @@ class _ChatScreenState extends State<ChatScreen> {
       'is_user': true,
     });
 
-    await Future.delayed(const Duration(seconds: 1));
-    await _firestore
-        .collection('users')
-        .doc(_currentUser.uid)
-        .collection('messages')
-        .add({
-      'text': 'Hello! I am your AI assistant. How can I help you today?',
-      'senderId': 'ai_assistant_id',
-      'timestamp': FieldValue.serverTimestamp(),
-      'is_user': false,
-    });
+    try {
+      // 2. إرسال الرسالة إلى موديل Gemini AI
+      final content = [Content.text(text)];
+      final response = await _model.generateContent(content);
+
+      // 3. إضافة رد الـ AI إلى Firestore
+      if (response.text != null) {
+        await _firestore
+            .collection('users')
+            .doc(_currentUser.uid)
+            .collection('messages')
+            .add({
+          'text': response.text,
+          'senderId': 'ai_assistant_id',
+          'timestamp': FieldValue.serverTimestamp(),
+          'is_user': false,
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
   }
 
   @override
@@ -65,7 +86,6 @@ class _ChatScreenState extends State<ChatScreen> {
           : Colors.grey[100],
       appBar: AppBar(
         title: const Text('AI Chat'),
-        // تخفيف لون الـ AppBar
         backgroundColor: Theme.of(context).primaryColor.withOpacity(0.85),
       ),
       body: Column(
@@ -182,9 +202,7 @@ class MessageBubble extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
         padding: const EdgeInsets.all(12.0),
-        // تعديل تصميم فقاعة الرسالة (هنا حدث التغيير)
         decoration: BoxDecoration(
-          // إضافة تدرج لوني لفقاعة المستخدم بدلاً من اللون الصلب
           gradient: isUserMessage
               ? LinearGradient(
                   colors: [
@@ -196,7 +214,7 @@ class MessageBubble extends StatelessWidget {
                 )
               : null,
           color: isUserMessage
-              ? null // اللون أصبح من التدرج
+              ? null
               : (isDarkMode ? const Color(0xFF333333) : Colors.grey[300]),
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16.0),
@@ -204,7 +222,6 @@ class MessageBubble extends StatelessWidget {
             bottomLeft: isUserMessage ? const Radius.circular(16.0) : const Radius.circular(0),
             bottomRight: isUserMessage ? const Radius.circular(0) : const Radius.circular(16.0),
           ),
-          // إضافة ظل خفيف للفقاعة لإعطائها عمقًا
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
