@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "14977791558",
+    "project_id": "chalan-11b87",
+    "storage_bucket": "chalan-11b87.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:14977791558:android:c8777962ca77704f16fc47",
+        "android_client_info": {
+          "package_name": "com.example.cha_lan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiaqRZsBi_EtiUhq3s4EBDaI5FUD5Talw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
