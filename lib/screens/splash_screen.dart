@@ -5,7 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../utils/app_theme.dart';
 import 'login_screen.dart';
 import 'language_selection_screen.dart';
-import 'main_screen.dart';
+import 'chat_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -44,21 +44,17 @@ class _SplashScreenState extends State<SplashScreen>
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      // No logged-in user, navigate to the Login screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
     } else {
-      // User is logged in, now check for language data
       final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
 
       if (userDoc.exists && userDoc.data()!.containsKey('spoken_language') && userDoc.data()!.containsKey('learning_language')) {
-        // Language data exists, go to the Main screen
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const MainScreen()),
+          MaterialPageRoute(builder: (context) => const ChatScreen()),
         );
       } else {
-        // Language data is missing, go to the Language Selection screen
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const LanguageSelectionScreen()),
         );
@@ -79,8 +75,9 @@ class _SplashScreenState extends State<SplashScreen>
     // Adjusted gradient for a softer look
     final backgroundGradient = LinearGradient(
       colors: isDark
-          ? [darkThemeColor, primaryColor.withOpacity(0.2)]
-          : [lightThemeColor, primaryColor.withOpacity(0.2)],
+          ? [darkThemeColor, darkThemeColor.withOpacity(0.5), primaryColor.withOpacity(0.5) , primaryColor]
+          : [lightThemeColor, lightThemeColor.withOpacity(0.5), primaryColor.withOpacity(0.5), primaryColor],
+
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
     );

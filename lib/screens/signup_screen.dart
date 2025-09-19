@@ -34,17 +34,11 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
     try {
-      // Create the user account in Firebase Authentication
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
 
-      // -------------------------------------------------------------
-      // This is the CRUCIAL missing step.
-      // Create the user's document in Firestore with their email.
-      // This must happen before you try to save languages.
-      // -------------------------------------------------------------
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userCredential.user!.uid)
@@ -53,7 +47,6 @@ class _SignupScreenState extends State<SignupScreen> {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      // Now navigate to the language selection screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const LanguageSelectionScreen()),
       );
