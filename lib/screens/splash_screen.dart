@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../utils/app_theme.dart';
 import 'login_screen.dart';
-import 'main_screen.dart'; // سنقوم بإنشاء هذا الملف لاحقًا
+import 'language_selection_screen.dart';
+import 'main_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -30,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen>
     );
     _controller.forward();
 
-    // نتحقق من حالة المستخدم بعد اكتمال الـ animation
+    // Check auth status after the animation completes
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _checkAuthStatus();
@@ -38,20 +40,30 @@ class _SplashScreenState extends State<SplashScreen>
     });
   }
 
-  void _checkAuthStatus() {
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
-      if (user == null) {
-        // لا يوجد مستخدم مسجل، ننتقل لصفحة تسجيل الدخول
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
-      } else {
-        // يوجد مستخدم مسجل، ننتقل للشاشة الرئيسية
+  Future<void> _checkAuthStatus() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      // No logged-in user, navigate to the Login screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    } else {
+      // User is logged in, now check for language data
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+
+      if (userDoc.exists && userDoc.data()!.containsKey('spoken_language') && userDoc.data()!.containsKey('learning_language')) {
+        // Language data exists, go to the Main screen
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const MainScreen()),
         );
+      } else {
+        // Language data is missing, go to the Language Selection screen
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const LanguageSelectionScreen()),
+        );
       }
-    });
+    }
   }
 
   @override
@@ -63,13 +75,14 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : Colors.black;
+
+    // Adjusted gradient for a softer look
     final backgroundGradient = LinearGradient(
       colors: isDark
-          ? [darkThemeColor, primaryColor]
-          : [lightThemeColor, primaryColor],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
+          ? [darkThemeColor, primaryColor.withOpacity(0.2)]
+          : [lightThemeColor, primaryColor.withOpacity(0.2)],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
     );
 
     return Scaffold(
@@ -84,16 +97,23 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Icon(
                   FontAwesomeIcons.solidCommentDots,
                   size: 100.0,
-                  color: textColor,
+                  color: Theme.of(context).primaryColor, // Icon color is now the primary color
                 ),
               ),
               const SizedBox(height: 20),
               Text(
                 'Chalan',
                 style: TextStyle(
-                  fontSize: 50,
+                  fontSize: 60, // Increased font size
                   fontWeight: FontWeight.bold,
-                  color: textColor,
+                  color: Theme.of(context).primaryColor, // Text color is now the primary color
+                  shadows: [
+                    Shadow(
+                      color: Theme.of(context).primaryColor.withOpacity(0.5),
+                      blurRadius: 10.0,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 10),
@@ -102,7 +122,7 @@ class _SplashScreenState extends State<SplashScreen>
                 style: TextStyle(
                   fontSize: 18,
                   fontStyle: FontStyle.italic,
-                  color: textColor,
+                  color: isDark ? Colors.white70 : Colors.black54,
                 ),
               ),
               const SizedBox(height: 50),

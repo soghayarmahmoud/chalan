@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'signup_screen.dart'; // سنقوم بإنشاء هذا الملف لاحقًا
+import 'signup_screen.dart';
+import 'language_selection_screen.dart'; // Import the new screen
 import '../utils/app_theme.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -27,11 +28,21 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text,
         password: _passwordController.text,
       );
-      // بعد تسجيل الدخول بنجاح، يمكنك الانتقال إلى الشاشة الرئيسية
-      // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const MainScreen()));
+      // Navigate to the language selection screen on successful login
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const LanguageSelectionScreen()),
+      );
     } on FirebaseAuthException catch (e) {
       setState(() {
-        _errorMessage = e.message ?? 'An unknown error occurred.';
+        if (e.code == 'user-not-found') {
+          _errorMessage = 'No user found for that email.';
+        } else if (e.code == 'wrong-password') {
+          _errorMessage = 'Wrong password provided for that user.';
+        } else if (e.code == 'invalid-email') {
+          _errorMessage = 'The email address is not valid.';
+        } else {
+          _errorMessage = e.message ?? 'An unknown error occurred.';
+        }
       });
     } finally {
       setState(() {
@@ -65,6 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 labelText: 'Email',
                 border: OutlineInputBorder(),
               ),
+              keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 16),
             TextField(
@@ -80,21 +92,17 @@ class _LoginScreenState extends State<LoginScreen> {
               Text(
                 _errorMessage,
                 style: const TextStyle(color: Colors.red),
+                textAlign: TextAlign.center,
               ),
             const SizedBox(height: 16),
             _isLoading
                 ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: _login,
-                    child: const Text('Login'),
-                  ),
+                : ElevatedButton(onPressed: _login, child: const Text('Login')),
             const SizedBox(height: 16),
             TextButton(
               onPressed: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const SignupScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const SignupScreen()),
                 );
               },
               child: const Text('Don\'t have an account? Sign Up'),
