@@ -17,15 +17,17 @@ class _ChatScreenState extends State<ChatScreen> {
   final _firestore = FirebaseFirestore.instance;
   late User _currentUser;
 
-  // تعريف موديل الذكاء الاصطناعي
   final _model = GenerativeModel(
-    model: 'gemini-pro',
-    apiKey: dotenv.env['GEMINI_API_KEY']!,
+    model: 'Flash',
+    apiKey: 'AIzaSyAxeEDPI_o9M24XA5nblfqXtSfix0C01nQ',
   );
+
+  late final ChatSession _chat;
 
   @override
   void initState() {
     super.initState();
+    _chat = _model.startChat();
     _currentUser = _auth.currentUser!;
   }
 
@@ -35,7 +37,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
     _messageController.clear();
 
-    // 1. إضافة رسالة المستخدم إلى Firestore
     await _firestore
         .collection('users')
         .doc(_currentUser.uid)
@@ -48,11 +49,8 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     try {
-      // 2. إرسال الرسالة إلى موديل Gemini AI
-      final content = [Content.text(text)];
-      final response = await _model.generateContent(content);
+      final response = await _chat.sendMessage(Content.text(text));
 
-      // 3. إضافة رد الـ AI إلى Firestore
       if (response.text != null) {
         await _firestore
             .collection('users')

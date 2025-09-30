@@ -9,7 +9,6 @@ import 'screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env"); // تم إضافة هذا السطر لتحميل ملف .env
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

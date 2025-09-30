@@ -56,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen>
         );
       } else {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const LanguageSelectionScreen()),
+          MaterialPageRoute(builder: (context) => const ChatScreen()),
         );
       }
     }
