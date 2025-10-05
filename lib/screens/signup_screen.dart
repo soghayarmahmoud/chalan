@@ -1,8 +1,7 @@
+import 'package:cha_lan/screens/chat_history_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../utils/app_theme.dart';
-import 'language_selection_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -48,7 +47,7 @@ class _SignupScreenState extends State<SignupScreen> {
       });
 
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const LanguageSelectionScreen()),
+        MaterialPageRoute(builder: (context) => const ChatHistoryScreen()),
       );
     } on FirebaseAuthException catch (e) {
       setState(() {

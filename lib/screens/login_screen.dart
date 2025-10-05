@@ -1,8 +1,8 @@
+import 'package:cha_lan/screens/chat_history_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'signup_screen.dart';
-import 'language_selection_screen.dart'; // Import the new screen
-import '../utils/app_theme.dart';
+// Import the new screen
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,9 +28,9 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text,
         password: _passwordController.text,
       );
-      // Navigate to the language selection screen on successful login
+      // Navigate to the chat screen on successful login
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const LanguageSelectionScreen()),
+        MaterialPageRoute(builder: (context) => const ChatHistoryScreen()),
       );
     } on FirebaseAuthException catch (e) {
       setState(() {

@@ -1,11 +1,10 @@
+import 'package:cha_lan/screens/chat_history_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../utils/app_theme.dart';
 import 'login_screen.dart';
-import 'language_selection_screen.dart';
-import 'chat_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -52,11 +51,11 @@ class _SplashScreenState extends State<SplashScreen>
 
       if (userDoc.exists && userDoc.data()!.containsKey('spoken_language') && userDoc.data()!.containsKey('learning_language')) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const ChatScreen()),
+          MaterialPageRoute(builder: (context) => const ChatHistoryScreen()),
         );
       } else {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const ChatScreen()),
+          MaterialPageRoute(builder: (context) => const ChatHistoryScreen()),
         );
       }
     }
@@ -75,8 +74,8 @@ class _SplashScreenState extends State<SplashScreen>
     // Adjusted gradient for a softer look
     final backgroundGradient = LinearGradient(
       colors: isDark
-          ? [darkThemeColor, darkThemeColor.withOpacity(0.5), primaryColor.withOpacity(0.5) , primaryColor]
-          : [lightThemeColor, lightThemeColor.withOpacity(0.5), primaryColor.withOpacity(0.5), primaryColor],
+          ? [darkThemeColor, darkThemeColor.withOpacity(0.5), primaryColor.withOpacity(0.5) ]
+          : [lightThemeColor, lightThemeColor.withOpacity(0.5), primaryColor.withOpacity(0.5)],
 
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
@@ -93,11 +92,11 @@ class _SplashScreenState extends State<SplashScreen>
                 opacity: _animation,
                 child: Icon(
                   FontAwesomeIcons.solidCommentDots,
-                  size: 100.0,
+                  size: 150.0,
                   color: Theme.of(context).primaryColor, // Icon color is now the primary color
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 50),
               Text(
                 'Chalan',
                 style: TextStyle(
@@ -107,8 +106,8 @@ class _SplashScreenState extends State<SplashScreen>
                   shadows: [
                     Shadow(
                       color: Theme.of(context).primaryColor.withOpacity(0.5),
-                      blurRadius: 10.0,
-                      offset: const Offset(0, 5),
+                      blurRadius: 5.0,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
